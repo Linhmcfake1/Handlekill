@@ -1,0 +1,46 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+
+-- Hàm handlekill để xử lý việc tiêu diệt tất cả người chơi khác
+local function handlekill()
+    if not firetouchinterest then
+        warn('Incompatible Exploit', 'Your exploit does not support this command (missing firetouchinterest)')
+        return
+    end
+
+    local Tool = player.Character and player.Character:FindFirstChildWhichIsA("Tool")
+    local Handle = Tool and Tool:FindFirstChild("Handle")
+
+    if not Tool or not Handle then
+        warn("Handle Kill", "You need to hold a \"Tool\" that does damage on touch. For example, the default \"Sword\" tool.")
+        return
+    end
+
+    for _, v in ipairs(Players:GetPlayers()) do
+        if v ~= player then
+            task.spawn(function()
+                while Tool and player.Character and v.Character and Tool.Parent == player.Character do
+                    local Human = v.Character:FindFirstChildWhichIsA("Humanoid")
+                    if not Human or Human.Health <= 0 or not v.Character.Parent then
+                        break
+                    end
+                    for _, v1 in ipairs(v.Character:GetChildren()) do
+                        if v1:IsA("BasePart") then
+                            pcall(function()
+                                firetouchinterest(Handle, v1, 1)
+                                task.wait()
+                                firetouchinterest(Handle, v1, 0)
+                            end)
+                        end
+                    end
+                    task.wait(0.1)
+                end
+            end)
+        end
+    end
+end
+
+-- Thực thi lệnh "Target All" ngay lập tức khi script được chạy
+handlekill()
